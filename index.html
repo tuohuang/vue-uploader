@@ -9,36 +9,36 @@
 </head>
 <body>
     <div id="app">
-        <div class="uploader-box">
-            <yd-lightbox>
-            <ul class="files flexbox" id="uploaderFiles">
-                <li class="file" v-for="previewImg ,index in previewImgList" :key="index">
-                    <span class="del" @click="delImg(index)">-</span>
-                    <img :src="previewImg"></img>
-                </li>
-                <li class="uploader_input-box" id="uploader_input-box" v-if="previewImgList.length<=imgNum-1">
-                    <input id="uploaderInput" @change="uploader" class="uploader_input" type="file" accept="image/*" multiple="">
-                </li>
-            </ul>
-            </yd-lightbox>
-            <input type="hidden" v-for="uploaderImg ,index in uploaderImgList" v-model="uploaderImg">
-        </div>
+        <uploader></uploader>
     </div>
     <script src="js/vue.min.js"></script>
     <script src="js/vue-resource.js"></script>
     <script>
-        var app = new Vue({
-            el: '#app',
-            data: {
-                previewImgList:[ //预览的图片路径
-                "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg","https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg"
-                ],
-                uploaderImgList:[ //提交的图片路径
-                "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg",
-                "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg"
-                ],
-                imgSize:2,//图片大小限制M
-                imgNum:5,//图片数量
+        Vue.component('uploader', {
+            template: `<div class="uploader-box">
+                            <ul class="files flexbox" id="uploaderFiles">
+                                <li class="file" v-for="previewImg ,index in previewImgList" :key="index">
+                                    <span class="del" @click="delImg(index)">-</span>
+                                    <img :src="previewImg"></img>
+                                </li>
+                                <li class="uploader_input-box" id="uploader_input-box" v-if="previewImgList.length<=imgNum-1">
+                                    <input id="uploaderInput" @change="uploader" class="uploader_input" type="file" accept="image/*" multiple="">
+                                </li>
+                            </ul>
+                            <input type="hidden" v-for="uploaderImg ,index in uploaderImgList" v-model="uploaderImg">
+                        </div>`,
+            data:function(){
+                return{
+                    previewImgList:[ //预览的图片路径
+                    "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg","https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg"
+                    ],
+                    uploaderImgList:[ //提交的图片路径
+                    "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg",
+                    "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg"
+                    ],
+                    imgSize:2,//图片大小限制M
+                    imgNum:5,//图片数量
+                }
             },
             methods:{
                 uploader:function(){
@@ -59,11 +59,12 @@
                             return false;
                         }
                         // 读取文件
-                        var reader = new FileReader();
+                        const reader = new FileReader();
+                        const _this = this;
                         reader.onload = function(e) {
                             var data = e.target.result;
-                            app.previewImgList = app.previewImgList.concat(data)
-                            app.$http.post('',{data:data}).then(function(res){ //上传
+                            _this.previewImgList = _this.previewImgList.concat(data)
+                            _this.$http.post('',{data:data}).then(function(res){ //上传
                                 if(res.data.code==1){
                                     this.uploaderImgList=this.uploaderImgList.concat(res.data.data)
                                 }else{
@@ -79,6 +80,10 @@
                     this.uploaderImgList.splice(index, 1);
                 }
             }
+        })
+
+        var app = new Vue({
+            el: '#app',
         })
     </script>
 </body>
