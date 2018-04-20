@@ -9,7 +9,7 @@
 </head>
 <body>
     <div id="app">
-        <uploader action="/" size="2" num="5" :previewlist="previewImgList" :uploaderlist="uploaderImgList"></uploader>
+        <uploader action="/" max-size="2" max-num="5" :preview-list="previewImgList" :uploader-list="uploaderImgList"></uploader>
     </div>
     <script src="js/vue.min.js"></script>
     <script src="js/vue-resource.js"></script>
@@ -17,34 +17,29 @@
         Vue.component('uploader', {
             template: `<div class="uploader-box">
                             <ul class="files flexbox" id="uploaderFiles">
-                                <li class="file" v-for="previewImg ,index in previewlist" :key="index">
+                                <li class="file" v-for="previewImg ,index in previewList" :key="index">
                                     <span class="del" @click="delImg(index)">-</span>
                                     <img :src="previewImg"></img>
                                 </li>
-                                <li class="uploader_input-box" id="uploader_input-box" v-if="previewlist.length<=num-1">
+                                <li class="uploader_input-box" id="uploader_input-box" v-if="previewList.length<=maxNum-1">
                                     <input id="uploaderInput" @change="uploader" class="uploader_input" type="file" accept="image/*" multiple="">
                                 </li>
                             </ul>
-                            <input type="hidden" v-for="uploaderImg ,index in uploaderlist" v-model="uploaderImg">
+                            <input type="hidden" v-for="uploaderImg ,index in uploaderList" v-model="uploaderImg">
                         </div>`,
-            data:function(){
-                return{
-                    
-                }
-            },
-            props: ['action','size','num','previewlist','uploaderlist'],
+            props: ['action','maxSize','maxNum','previewList','uploaderList'],
             methods:{
                 uploader:function(){
                     fileInput = document.getElementById('uploaderInput');
-                    if(fileInput.files.length+this.previewlist.length>this.num){
-                        alert('最多还能上传'+(this.num-this.previewlist.length)+'张图片')
+                    if(fileInput.files.length+this.previewList.length>this.maxNum){
+                        alert('最多还能上传'+(this.maxNum-this.previewList.length)+'张图片')
                         return false;
                     }
                     for(i=0;i<fileInput.files.length;i++){
                         var file = fileInput.files[i];
-                        var size = file.size;
-                        if(size >= this.size*1024*1024){
-                            alert('图片不能超过'+this.size+'M')
+                        var maxSize = file.maxSize;
+                        if(maxSize >= this.maxSize*1024*1024){
+                            alert('图片不能超过'+this.maxSize+'M')
                             return false;
                         }
                         if(file.type !== 'image/jpeg' && file.type !== 'image/png' && file.type !== 'image/gif') {
@@ -56,10 +51,10 @@
                         const _this = this;
                         reader.onload = function(e) {
                             var data = e.target.result;
-                            _this.previewlist = _this.previewlist.concat(data)
+                            _this.previewList = _this.previewList.concat(data)
                             _this.$http.post(this.action,{data:data}).then(function(res){ //上传
                                 if(res.data.code==1){
-                                    this.previewlist=this.previewlist.concat(res.data.data)
+                                    this.uploaderList=this.uploaderList.concat(res.data.data)
                                 }else{
 
                                 }
@@ -69,8 +64,8 @@
                     }
                 },
                 delImg:function(index){
-                    this.previewlist.splice(index, 1);
-                    this.previewlist.splice(index, 1);
+                    this.previewList.splice(index, 1);
+                    this.uploaderList.splice(index, 1);
                 }
             }
         })
@@ -85,7 +80,7 @@
                 "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg",
                 "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg"
                     ]
-            }
+            },
         })
     </script>
 </body>
