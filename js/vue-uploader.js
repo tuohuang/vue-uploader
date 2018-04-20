@@ -33,11 +33,9 @@ Vue.component('uploader', {
                 // 读取文件
                 const reader = new FileReader();
                 const _this = this;
-                console.log(this)
                 reader.onload = function (e) {
                     var data = e.target.result;
                     _this.previewList = _this.previewList.concat(data)
-                    console.log(_this.previewList)
                     _this.$http.post(this.action, { data: data }).then(function (res) { //上传
                         if (res.data.code == 1) {
                             this.uploaderList = this.uploaderList.concat(res.data.data)
