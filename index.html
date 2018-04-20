@@ -9,7 +9,7 @@
 </head>
 <body>
     <div id="app">
-        <uploader action="/" size="2" num="5"></uploader>
+        <uploader action="/" size="2" num="5" :previewlist="previewImgList" :uploaderlist="uploaderImgList"></uploader>
     </div>
     <script src="js/vue.min.js"></script>
     <script src="js/vue-resource.js"></script>
@@ -17,33 +17,27 @@
         Vue.component('uploader', {
             template: `<div class="uploader-box">
                             <ul class="files flexbox" id="uploaderFiles">
-                                <li class="file" v-for="previewImg ,index in previewImgList" :key="index">
+                                <li class="file" v-for="previewImg ,index in previewlist" :key="index">
                                     <span class="del" @click="delImg(index)">-</span>
                                     <img :src="previewImg"></img>
                                 </li>
-                                <li class="uploader_input-box" id="uploader_input-box" v-if="previewImgList.length<=num-1">
+                                <li class="uploader_input-box" id="uploader_input-box" v-if="previewlist.length<=num-1">
                                     <input id="uploaderInput" @change="uploader" class="uploader_input" type="file" accept="image/*" multiple="">
                                 </li>
                             </ul>
-                            <input type="hidden" v-for="uploaderImg ,index in uploaderImgList" v-model="uploaderImg">
+                            <input type="hidden" v-for="uploaderImg ,index in uploaderlist" v-model="uploaderImg">
                         </div>`,
             data:function(){
                 return{
-                    previewImgList:[ //预览的图片路径
-                    "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg","https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg"
-                    ],
-                    uploaderImgList:[ //提交的图片路径
-                    "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg",
-                    "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg"
-                    ]
+                    
                 }
             },
-            props: ['action','size','num'],
+            props: ['action','size','num','previewlist','uploaderlist'],
             methods:{
                 uploader:function(){
                     fileInput = document.getElementById('uploaderInput');
-                    if(fileInput.files.length+this.previewImgList.length>this.num){
-                        alert('最多还能上传'+(this.num-this.previewImgList.length)+'张图片')
+                    if(fileInput.files.length+this.previewlist.length>this.num){
+                        alert('最多还能上传'+(this.num-this.previewlist.length)+'张图片')
                         return false;
                     }
                     for(i=0;i<fileInput.files.length;i++){
@@ -62,10 +56,10 @@
                         const _this = this;
                         reader.onload = function(e) {
                             var data = e.target.result;
-                            _this.previewImgList = _this.previewImgList.concat(data)
+                            _this.previewlist = _this.previewlist.concat(data)
                             _this.$http.post(this.action,{data:data}).then(function(res){ //上传
                                 if(res.data.code==1){
-                                    this.uploaderImgList=this.uploaderImgList.concat(res.data.data)
+                                    this.previewlist=this.previewlist.concat(res.data.data)
                                 }else{
 
                                 }
@@ -75,14 +69,23 @@
                     }
                 },
                 delImg:function(index){
-                    this.previewImgList.splice(index, 1);
-                    this.uploaderImgList.splice(index, 1);
+                    this.previewlist.splice(index, 1);
+                    this.previewlist.splice(index, 1);
                 }
             }
         })
 
         var app = new Vue({
             el: '#app',
+            data: {
+                previewImgList:[ //预览的图片路径
+                    "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg","https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg"
+                    ],
+                uploaderImgList:[ //提交的图片路径
+                "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg",
+                "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg"
+                    ]
+            }
         })
     </script>
 </body>
