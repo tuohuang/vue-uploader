@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>图片上传</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <div class="uploader-box">
+            <yd-lightbox>
+            <ul class="files flexbox" id="uploaderFiles">
+                <li class="file" v-for="previewImg ,index in previewImgList" :key="index">
+                    <span class="del" @click="delImg(index)">-</span>
+                    <img :src="previewImg"></img>
+                </li>
+                <li class="uploader_input-box" id="uploader_input-box" v-if="previewImgList.length<=imgNum-1">
+                    <input id="uploaderInput" @change="uploader" class="uploader_input" type="file" accept="image/*" multiple="">
+                </li>
+            </ul>
+            </yd-lightbox>
+            <input type="hidden" v-for="uploaderImg ,index in uploaderImgList" v-model="uploaderImg">
+        </div>
+    </div>
+    <script src="js/vue.min.js"></script>
+    <script src="js/vue-resource.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                previewImgList:[ //预览的图片路径
+                "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg","https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg"
+                ],
+                uploaderImgList:[ //提交的图片路径
+                "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg",
+                "https://img.alicdn.com/bao/uploaded/i2/725677994/TB2LiKvabZnBKNjSZFhXXc.oXXa_!!725677994.jpg_160x160q90.jpg"
+                ],
+                imgSize:2,//图片大小限制M
+                imgNum:5,//图片数量
+            },
+            methods:{
+                uploader:function(){
+                    fileInput = document.getElementById('uploaderInput');
+                    if(fileInput.files.length+this.previewImgList.length>this.imgNum){
+                        alert('最多还能上传'+(this.imgNum-this.previewImgList.length)+'张图片')
+                        return false;
+                    }
+                    for(i=0;i<fileInput.files.length;i++){
+                        var file = fileInput.files[i];
+                        var size = file.size;
+                        if(size >= this.imgSize*1024*1024){
+                            alert('图片不能超过'+this.imgSize+'M')
+                            return false;
+                        }
+                        if(file.type !== 'image/jpeg' && file.type !== 'image/png' && file.type !== 'image/gif') {
+                            alert('不是有效的图片文件!')
+                            return false;
+                        }
+                        // 读取文件
+                        var reader = new FileReader();
+                        reader.onload = function(e) {
+                            var data = e.target.result;
+                            app.previewImgList = app.previewImgList.concat(data)
+                            app.$http.post('',{data:data}).then(function(res){ //上传
+                                if(res.data.code==1){
+                                    this.uploaderImgList=this.uploaderImgList.concat(res.data.data)
+                                }else{
+
+                                }
+                            })
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                },
+                delImg:function(index){
+                    this.previewImgList.splice(index, 1);
+                    this.uploaderImgList.splice(index, 1);
+                }
+            }
+        })
+    </script>
+</body>
+</html>
